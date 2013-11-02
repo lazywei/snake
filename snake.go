@@ -10,13 +10,13 @@ type Snake struct {
 
 func NewSnake() *Snake {
 	pos := list.New()
-	pos.PushBack([2]int{0, 0})
+	pos.PushFront([2]int{10, 10})
 	return &Snake{
 		Pos: pos,
 	}
 }
 
-func (this *Snake) MoveUp(eaten bool) {
+func (this *Snake) MoveDown(eaten bool) {
 	headNode, headPos := this.addHead()
 	headNode.Value = [2]int{headPos[0], headPos[1] + 1}
 	if !eaten {
@@ -32,7 +32,7 @@ func (this *Snake) MoveLeft(eaten bool) {
 	}
 }
 
-func (this *Snake) MoveDown(eaten bool) {
+func (this *Snake) MoveUp(eaten bool) {
 	headNode, headPos := this.addHead()
 	headNode.Value = [2]int{headPos[0], headPos[1] - 1}
 	if !eaten {
