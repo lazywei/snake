@@ -7,7 +7,7 @@ import (
 type Movement [2]int
 
 type Snake struct {
-	Pos       *list.List
+	Nodes     *list.List
 	State     string
 	Movements map[string]Movement
 }
@@ -23,21 +23,31 @@ const (
 func NewSnake() *Snake {
 	s := &Snake{}
 
-	pos := list.New()
-	pos.PushFront([2]int{10, 10})
-	s.Pos = pos
+	nodes := list.New()
+	nodes.PushFront([2]int{0, 0})
+	s.Nodes = nodes
 
 	movements := make(map[string]Movement)
 	movements[SnakeStateStop] = [2]int{0, 0}
 	movements[SnakeStateDown] = [2]int{0, 1}
 	movements[SnakeStateUp] = [2]int{0, -1}
-	movements[SnakeStateLeft] = [2]int{-1, 0}
-	movements[SnakeStateRight] = [2]int{1, 0}
+	movements[SnakeStateLeft] = [2]int{-2, 0}
+	movements[SnakeStateRight] = [2]int{2, 0}
 	s.Movements = movements
 
 	s.State = SnakeStateStop
 
 	return s
+}
+
+func (this *Snake) SetHead(x, y int) {
+	head := this.Nodes.Front()
+	head.Value = [2]int{x, y}
+}
+
+func (this *Snake) Head() (headNode *list.Element, headPos [2]int) {
+	headNode = this.Nodes.Front()
+	return headNode, headNode.Value.([2]int)
 }
 
 func (this *Snake) KeepGoing(eaten bool) {
@@ -47,36 +57,32 @@ func (this *Snake) KeepGoing(eaten bool) {
 	}
 }
 
-func (this *Snake) MoveDown(eaten bool) {
+func (this *Snake) TurnDown(eaten bool) {
 	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
 	this.State = SnakeStateDown
-	this.KeepGoing(eaten)
 }
 
-func (this *Snake) MoveUp(eaten bool) {
+func (this *Snake) TurnUp(eaten bool) {
 	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
 	this.State = SnakeStateUp
-	this.KeepGoing(eaten)
 }
 
-func (this *Snake) MoveLeft(eaten bool) {
+func (this *Snake) TurnLeft(eaten bool) {
 	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
 	this.State = SnakeStateLeft
-	this.KeepGoing(eaten)
 }
 
-func (this *Snake) MoveRight(eaten bool) {
+func (this *Snake) TurnRight(eaten bool) {
 	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
 	this.State = SnakeStateRight
-	this.KeepGoing(eaten)
 }
 
 func (this *Snake) isStateIn(states ...string) bool {
@@ -92,17 +98,17 @@ func (this *Snake) isStateIn(states ...string) bool {
 }
 
 func (this *Snake) move(movement [2]int) {
-	headNode, headPos := this.addHead()
+	this.addHead()
+	headNode, headPos := this.Head()
 	headNode.Value = [2]int{headPos[0] + movement[0], headPos[1] + movement[1]}
 }
 
-func (this *Snake) addHead() (headNode *list.Element, headPos [2]int) {
-	node := this.Pos.Front()
-	headNode = this.Pos.PushFront(node.Value)
-	return headNode, headNode.Value.([2]int)
+func (this *Snake) addHead() {
+	node := this.Nodes.Front()
+	this.Nodes.PushFront(node.Value)
 }
 
 func (this *Snake) cutTail() {
-	tail := this.Pos.Back()
-	this.Pos.Remove(tail)
+	tail := this.Nodes.Back()
+	this.Nodes.Remove(tail)
 }

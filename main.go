@@ -3,6 +3,8 @@ package main
 import (
 	//"github.com/davecgh/go-spew/spew"
 	"github.com/nsf/termbox-go"
+	"log"
+	"os"
 	"time"
 )
 
@@ -13,17 +15,41 @@ func drawAll() {
 
 func drawSnake() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
-	nodes := snake.Pos
+	nodes := snake.Nodes
 	for e := nodes.Front(); e != nil; e = e.Next() {
 		pos := e.Value.([2]int)
-		termbox.SetCell(pos[0], pos[1], 'O', termbox.ColorYellow, termbox.ColorDefault)
+		termbox.SetCell(pos[0], pos[1], '[', termbox.ColorYellow, termbox.ColorDefault)
+		termbox.SetCell(pos[0]+1, pos[1], ']', termbox.ColorYellow, termbox.ColorDefault)
 	}
 	termbox.Flush()
+}
+
+func checkOutOfBound() {
+	w, h := termbox.Size()
+	_, headPos := snake.Head()
+
+	if headPos[0] >= w {
+		snake.SetHead(headPos[0]-w, headPos[1])
+	} else if headPos[0] < 0 {
+		snake.SetHead(headPos[0]+w, headPos[1])
+	}
+
+	if headPos[1] >= h {
+		snake.SetHead(headPos[0], headPos[1]-h)
+	} else if headPos[1] < 0 {
+		snake.SetHead(headPos[0], headPos[1]+h)
+	}
+
 }
 
 var snake *Snake
 
 func main() {
+
+	logFile, _ := os.OpenFile("logs", os.O_RDWR|os.O_APPEND, 0660)
+	defer logFile.Close()
+	log.SetOutput(logFile)
+
 	err := termbox.Init()
 	if err != nil {
 		panic(err)
@@ -45,20 +71,22 @@ loop:
 		case ev := <-eventQueue:
 			switch ev.Key {
 			case termbox.KeyArrowDown:
-				snake.MoveDown(false)
+				snake.TurnDown(false)
 			case termbox.KeyArrowRight:
-				snake.MoveRight(false)
+				snake.TurnRight(false)
 			case termbox.KeyArrowUp:
-				snake.MoveUp(false)
+				snake.TurnUp(false)
 			case termbox.KeyArrowLeft:
-				snake.MoveLeft(false)
+				snake.TurnLeft(false)
 			case termbox.KeyEsc:
 				break loop
 			}
 		default:
 			snake.KeepGoing(false)
+			checkOutOfBound()
 			drawSnake()
-			time.Sleep(100 * time.Millisecond)
+			log.Println(snake.Nodes.Front().Value)
+			time.Sleep(500 * time.Millisecond)
 		}
 	}
 }
