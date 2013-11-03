@@ -10,18 +10,24 @@ import (
 
 func drawAll() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
+	drawGem()
+	drawSnake()
 	termbox.Flush()
 }
 
 func drawSnake() {
-	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	nodes := snake.Nodes
 	for e := nodes.Front(); e != nil; e = e.Next() {
 		pos := e.Value.([2]int)
 		termbox.SetCell(pos[0], pos[1], '[', termbox.ColorYellow, termbox.ColorDefault)
 		termbox.SetCell(pos[0]+1, pos[1], ']', termbox.ColorYellow, termbox.ColorDefault)
 	}
-	termbox.Flush()
+}
+
+func drawGem() {
+	pos := scene.Gem
+	termbox.SetCell(pos[0], pos[1], ' ', termbox.ColorDefault, termbox.ColorRed)
+	termbox.SetCell(pos[0]+1, pos[1], ' ', termbox.ColorDefault, termbox.ColorRed)
 }
 
 func checkOutOfBound() {
@@ -43,6 +49,7 @@ func checkOutOfBound() {
 }
 
 var snake *Snake
+var scene *Scene
 
 func main() {
 
@@ -55,8 +62,13 @@ func main() {
 		panic(err)
 	}
 	defer termbox.Close()
+
+	w, h := termbox.Size()
 	snake = NewSnake()
-	drawSnake()
+	scene = NewScene(snake, w, h)
+	scene.generateGem()
+
+	drawAll()
 
 	eventQueue := make(chan termbox.Event)
 	go func() {
@@ -71,22 +83,27 @@ loop:
 		case ev := <-eventQueue:
 			switch ev.Key {
 			case termbox.KeyArrowDown:
-				snake.TurnDown(false)
+				snake.TurnDown()
 			case termbox.KeyArrowRight:
-				snake.TurnRight(false)
+				snake.TurnRight()
 			case termbox.KeyArrowUp:
-				snake.TurnUp(false)
+				snake.TurnUp()
 			case termbox.KeyArrowLeft:
-				snake.TurnLeft(false)
+				snake.TurnLeft()
 			case termbox.KeyEsc:
 				break loop
 			}
 		default:
-			snake.KeepGoing(false)
+			if scene.isSnakeOnGem() {
+				snake.KeepGoing(true)
+				scene.generateGem()
+			} else {
+				snake.KeepGoing(false)
+			}
 			checkOutOfBound()
-			drawSnake()
+			drawAll()
 			log.Println(snake.Nodes.Front().Value)
-			time.Sleep(500 * time.Millisecond)
+			time.Sleep(100 * time.Millisecond)
 		}
 	}
 }

@@ -57,28 +57,28 @@ func (this *Snake) KeepGoing(eaten bool) {
 	}
 }
 
-func (this *Snake) TurnDown(eaten bool) {
+func (this *Snake) TurnDown() {
 	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
 	this.State = SnakeStateDown
 }
 
-func (this *Snake) TurnUp(eaten bool) {
+func (this *Snake) TurnUp() {
 	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
 	this.State = SnakeStateUp
 }
 
-func (this *Snake) TurnLeft(eaten bool) {
+func (this *Snake) TurnLeft() {
 	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
 	this.State = SnakeStateLeft
 }
 
-func (this *Snake) TurnRight(eaten bool) {
+func (this *Snake) TurnRight() {
 	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
