@@ -5,7 +5,8 @@ import (
 )
 
 type Snake struct {
-	Pos *list.List
+	Pos       *list.List
+	KeepGoing func(bool)
 }
 
 func NewSnake() *Snake {
@@ -17,35 +18,40 @@ func NewSnake() *Snake {
 }
 
 func (this *Snake) MoveDown(eaten bool) {
-	headNode, headPos := this.addHead()
-	headNode.Value = [2]int{headPos[0], headPos[1] + 1}
+	this.move(0, 1)
+	this.KeepGoing = this.MoveDown
 	if !eaten {
 		this.cutTail()
 	}
 }
 
 func (this *Snake) MoveLeft(eaten bool) {
-	headNode, headPos := this.addHead()
-	headNode.Value = [2]int{headPos[0] - 1, headPos[1]}
+	this.move(-1, 0)
+	this.KeepGoing = this.MoveLeft
 	if !eaten {
 		this.cutTail()
 	}
 }
 
 func (this *Snake) MoveUp(eaten bool) {
-	headNode, headPos := this.addHead()
-	headNode.Value = [2]int{headPos[0], headPos[1] - 1}
+	this.move(0, -1)
+	this.KeepGoing = this.MoveUp
 	if !eaten {
 		this.cutTail()
 	}
 }
 
 func (this *Snake) MoveRight(eaten bool) {
-	headNode, headPos := this.addHead()
-	headNode.Value = [2]int{headPos[0] + 1, headPos[1]}
+	this.move(1, 0)
+	this.KeepGoing = this.MoveRight
 	if !eaten {
 		this.cutTail()
 	}
+}
+
+func (this *Snake) move(x, y int) {
+	headNode, headPos := this.addHead()
+	headNode.Value = [2]int{headPos[0] + x, headPos[1] + y}
 }
 
 func (this *Snake) addHead() (headNode *list.Element, headPos [2]int) {
