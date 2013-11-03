@@ -24,7 +24,7 @@ func NewSnake() *Snake {
 	s := &Snake{}
 
 	nodes := list.New()
-	nodes.PushFront([2]int{0, 0})
+	nodes.PushBack([2]int{10, 10})
 	s.Nodes = nodes
 
 	movements := make(map[string]Movement)

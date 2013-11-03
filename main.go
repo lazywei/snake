@@ -16,8 +16,12 @@ func drawAll() {
 }
 
 func drawSnake() {
-	nodes := snake.Nodes
-	for e := nodes.Front(); e != nil; e = e.Next() {
+	head, headPos := snake.Head()
+
+  termbox.SetCell(headPos[0], headPos[1], '(', termbox.ColorYellow, termbox.ColorDefault)
+  termbox.SetCell(headPos[0]+1, headPos[1], ')', termbox.ColorYellow, termbox.ColorDefault)
+
+	for e := head.Next(); e != nil; e = e.Next() {
 		pos := e.Value.([2]int)
 		termbox.SetCell(pos[0], pos[1], '[', termbox.ColorYellow, termbox.ColorDefault)
 		termbox.SetCell(pos[0]+1, pos[1], ']', termbox.ColorYellow, termbox.ColorDefault)
@@ -103,7 +107,7 @@ loop:
 			checkOutOfBound()
 			drawAll()
 			log.Println(snake.Nodes.Front().Value)
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(130 * time.Millisecond)
 		}
 	}
 }
