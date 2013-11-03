@@ -56,9 +56,7 @@ loop:
 				break loop
 			}
 		default:
-			if snake.KeepGoing != nil {
-				snake.KeepGoing(false)
-			}
+			snake.KeepGoing(false)
 			drawSnake()
 			time.Sleep(100 * time.Millisecond)
 		}
