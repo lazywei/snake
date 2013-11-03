@@ -12,6 +12,14 @@ type Snake struct {
 	Movements map[string]Movement
 }
 
+const (
+	SnakeStateStop  = "stop"
+	SnakeStateDown  = "down"
+	SnakeStateUp    = "up"
+	SnakeStateLeft  = "left"
+	SnakeStateRight = "right"
+)
+
 func NewSnake() *Snake {
 	s := &Snake{}
 
@@ -20,14 +28,14 @@ func NewSnake() *Snake {
 	s.Pos = pos
 
 	movements := make(map[string]Movement)
-	movements["stop"] = [2]int{0, 0}
-	movements["down"] = [2]int{0, 1}
-	movements["up"] = [2]int{0, -1}
-	movements["left"] = [2]int{-1, 0}
-	movements["right"] = [2]int{1, 0}
+	movements[SnakeStateStop] = [2]int{0, 0}
+	movements[SnakeStateDown] = [2]int{0, 1}
+	movements[SnakeStateUp] = [2]int{0, -1}
+	movements[SnakeStateLeft] = [2]int{-1, 0}
+	movements[SnakeStateRight] = [2]int{1, 0}
 	s.Movements = movements
 
-	s.State = "stop"
+	s.State = SnakeStateStop
 
 	return s
 }
@@ -40,35 +48,47 @@ func (this *Snake) KeepGoing(eaten bool) {
 }
 
 func (this *Snake) MoveDown(eaten bool) {
-	if this.State == "up" {
+	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
-	this.State = "down"
+	this.State = SnakeStateDown
 	this.KeepGoing(eaten)
 }
 
 func (this *Snake) MoveUp(eaten bool) {
-	if this.State == "down" {
+	if this.isStateIn(SnakeStateUp, SnakeStateDown) {
 		return
 	}
-	this.State = "up"
+	this.State = SnakeStateUp
 	this.KeepGoing(eaten)
 }
 
 func (this *Snake) MoveLeft(eaten bool) {
-	if this.State == "right" {
+	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
-	this.State = "left"
+	this.State = SnakeStateLeft
 	this.KeepGoing(eaten)
 }
 
 func (this *Snake) MoveRight(eaten bool) {
-	if this.State == "left" {
+	if this.isStateIn(SnakeStateLeft, SnakeStateRight) {
 		return
 	}
-	this.State = "right"
+	this.State = SnakeStateRight
 	this.KeepGoing(eaten)
+}
+
+func (this *Snake) isStateIn(states ...string) bool {
+	var flag bool
+	flag = false
+	for _, state := range states {
+		if this.State == state {
+			flag = true
+			break
+		}
+	}
+	return flag
 }
 
 func (this *Snake) move(movement [2]int) {
