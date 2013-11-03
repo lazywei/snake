@@ -8,18 +8,28 @@ import (
 	"time"
 )
 
+const (
+  margin = 4
+)
+
+var (
+  snake *Snake
+  scene *Scene
+)
+
 func drawAll() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	drawGem()
 	drawSnake()
+  drawBoundary()
 	termbox.Flush()
 }
 
 func drawSnake() {
 	head, headPos := snake.Head()
 
-  termbox.SetCell(headPos[0], headPos[1], '(', termbox.ColorYellow, termbox.ColorDefault)
-  termbox.SetCell(headPos[0]+1, headPos[1], ')', termbox.ColorYellow, termbox.ColorDefault)
+	termbox.SetCell(headPos[0], headPos[1], ' ', termbox.ColorDefault, termbox.ColorYellow)
+	termbox.SetCell(headPos[0]+1, headPos[1], ' ', termbox.ColorDefault, termbox.ColorYellow)
 
 	for e := head.Next(); e != nil; e = e.Next() {
 		pos := e.Value.([2]int)
@@ -34,26 +44,24 @@ func drawGem() {
 	termbox.SetCell(pos[0]+1, pos[1], ' ', termbox.ColorDefault, termbox.ColorRed)
 }
 
-func checkOutOfBound() {
-	w, h := termbox.Size()
-	_, headPos := snake.Head()
+func drawBoundary() {
 
-	if headPos[0] >= w {
-		snake.SetHead(headPos[0]-w, headPos[1])
-	} else if headPos[0] < 0 {
-		snake.SetHead(headPos[0]+w, headPos[1])
-	}
+	left := scene.InnerLeft
+	right := scene.InnerRight
 
-	if headPos[1] >= h {
-		snake.SetHead(headPos[0], headPos[1]-h)
-	} else if headPos[1] < 0 {
-		snake.SetHead(headPos[0], headPos[1]+h)
-	}
+	top := scene.InnerTop
+	down := scene.InnerDown
 
+  for x := left; x <= right; x++ {
+    termbox.SetCell(x, top, '-', termbox.ColorBlue, termbox.ColorDefault)
+    termbox.SetCell(x, down, '-', termbox.ColorBlue, termbox.ColorDefault)
+  }
+
+  for y := top + 1; y < down; y++ {
+    termbox.SetCell(left, y, '|', termbox.ColorBlue, termbox.ColorDefault)
+    termbox.SetCell(right, y, '|', termbox.ColorBlue, termbox.ColorDefault)
+  }
 }
-
-var snake *Snake
-var scene *Scene
 
 func main() {
 
@@ -69,7 +77,7 @@ func main() {
 
 	w, h := termbox.Size()
 	snake = NewSnake()
-	scene = NewScene(snake, w, h)
+	scene = NewScene(snake, w, h, margin)
 	scene.generateGem()
 
 	drawAll()
@@ -104,10 +112,10 @@ loop:
 			} else {
 				snake.KeepGoing(false)
 			}
-			checkOutOfBound()
+			scene.BounderCheck()
 			drawAll()
 			log.Println(snake.Nodes.Front().Value)
-			time.Sleep(130 * time.Millisecond)
+			time.Sleep(150 * time.Millisecond)
 		}
 	}
 }
