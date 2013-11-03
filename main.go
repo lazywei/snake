@@ -9,19 +9,22 @@ import (
 )
 
 const (
-  margin = 4
+	margin = 4
 )
 
 var (
-  snake *Snake
-  scene *Scene
+	snake *Snake
+	scene *Scene
+	score = 0
+	delay = 140
 )
 
 func drawAll() {
 	termbox.Clear(termbox.ColorDefault, termbox.ColorDefault)
 	drawGem()
 	drawSnake()
-  drawBoundary()
+	drawBoundary()
+	drawScoreBoard()
 	termbox.Flush()
 }
 
@@ -52,15 +55,31 @@ func drawBoundary() {
 	top := scene.InnerTop
 	down := scene.InnerDown
 
-  for x := left; x <= right; x++ {
-    termbox.SetCell(x, top, '-', termbox.ColorBlue, termbox.ColorDefault)
-    termbox.SetCell(x, down, '-', termbox.ColorBlue, termbox.ColorDefault)
-  }
+	for x := left; x <= right; x++ {
+		termbox.SetCell(x, top, '-', termbox.ColorBlue, termbox.ColorDefault)
+		termbox.SetCell(x, down, '-', termbox.ColorBlue, termbox.ColorDefault)
+	}
 
-  for y := top + 1; y < down; y++ {
-    termbox.SetCell(left, y, '|', termbox.ColorBlue, termbox.ColorDefault)
-    termbox.SetCell(right, y, '|', termbox.ColorBlue, termbox.ColorDefault)
-  }
+	for y := top + 1; y < down; y++ {
+		termbox.SetCell(left, y, '|', termbox.ColorBlue, termbox.ColorDefault)
+		termbox.SetCell(right, y, '|', termbox.ColorBlue, termbox.ColorDefault)
+	}
+}
+
+func drawScoreBoard() {
+	s1 := score % 1000 / 100
+	s2 := score % 100 / 10
+	s3 := score % 10
+
+	termbox.SetCell(3, 3, 'S', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(4, 3, 'c', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(5, 3, 'o', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(6, 3, 'r', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(7, 3, 'e', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(8, 3, ':', termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(9, 3, rune(s1+'0'), termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(10, 3, rune(s2+'0'), termbox.ColorWhite, termbox.ColorDefault)
+	termbox.SetCell(11, 3, rune(s3+'0'), termbox.ColorWhite, termbox.ColorDefault)
 }
 
 func main() {
@@ -107,6 +126,8 @@ loop:
 			}
 		default:
 			if scene.isSnakeOnGem() {
+				score = score + 1
+				delay = delay - 1
 				snake.KeepGoing(true)
 				scene.generateGem()
 			} else {
@@ -115,7 +136,7 @@ loop:
 			scene.BounderCheck()
 			drawAll()
 			log.Println(snake.Nodes.Front().Value)
-			time.Sleep(150 * time.Millisecond)
+			time.Sleep(time.Duration(delay) * time.Millisecond)
 		}
 	}
 }

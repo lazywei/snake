@@ -51,11 +51,11 @@ func (this *Scene) init() {
 
 func (this *Scene) generateGem() {
 
-  // x: InnerLeft+1 ~ InnerRight-2
-  widthRange := this.InnerWidth / 2
+	// x: InnerLeft+1 ~ InnerRight-2
+	widthRange := this.InnerWidth / 2
 
 	this.Gem = [2]int{
-		this.InnerLeft + 2*(1 + rand.Int()%widthRange) - 1,
+		this.InnerLeft + 2*(1+rand.Int()%widthRange) - 1,
 		1 + this.InnerTop + rand.Int()%this.InnerHeight,
 	}
 }
